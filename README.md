@@ -8,6 +8,9 @@ The projects emphasize end-to-end workflows, including data cleaning, explorator
 - **Exploratory Data Analysis – Crime in Los Angeles**  
   Exploratory analysis of crime data focusing on demographics, temporal patterns, and night crime distribution.
 
+- **Logistic Regression – Car Insurance Claims**  
+  Feature-wise logistic regression analysis to identify key predictors of insurance claim outcomes.
+
 ## Tools & Technologies
 - Python
 - R
