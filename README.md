@@ -11,6 +11,10 @@ The projects emphasize end-to-end workflows, including data cleaning, explorator
 - **Logistic Regression – Car Insurance Claims**  
   Feature-wise logistic regression analysis to identify key predictors of insurance claim outcomes.
 
+- **Hypothesis Testing – Goals in World Cup Matches**  
+  Statistical comparison of goal distributions in men's and women's World Cup matches using non-parametric tests.
+
+
 ## Tools & Technologies
 - Python
 - R
