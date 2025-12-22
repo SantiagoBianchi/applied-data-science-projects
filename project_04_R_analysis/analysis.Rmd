@@ -1,0 +1,75 @@
+---
+title: "Zearaja brevicaudata Analysis"
+author: "Santiago Bianchi"
+date: "`r Sys.Date()`"
+output: html_notebook
+---
+
+# 1. Package installation and loading
+
+# List of required packages
+
+packages <- c("sf", "mapdata", "maps", "ggplot2",
+"dplyr", "tidyr", "purrr", "FSA", "readxl",
+"plotrix", "bayesian", "tidyverse", "BayesGrowth",
+"AquaticLifeHistory", "tidybayes", "bayesplot",
+"rstan", "pander", "cowplot", "readr")
+
+# Install any packages that are not yet installed
+
+installed <- packages %in% rownames(installed.packages())
+if(any(!installed)) install.packages(packages[!installed], dependencies = TRUE)
+
+# Load all packages
+
+lapply(packages, library, character.only = TRUE)
+
+
+# Sample distributions
+
+library(FSA)
+library(readxl)
+library(plotrix)
+library(ggplot2)
+
+Z_brevicaudata <- read_excel("data/Z_brevicaudata.xlsx", 
+                             sheet = "Z.brevicaudata")
+View(Z_brevicaudata)
+
+windows()
+raya <- ggplot(Z_brevicaudata, aes(x = Lt, fill = Sexo)) + 
+  geom_histogram(colour = "black",
+                 binwidth = 0.10,
+                 lwd = 0.65,
+                 linetype = 1,
+                 position = "dodge",
+                 breaks = seq(100, 1100, by = 50)) +
+  scale_fill_manual(values = c("black", "white")) +
+  guides(fill = guide_legend(title = "Sexo"),
+         colour = guide_legend(title = "Sexo")) +
+  geom_vline(xintercept = 162.5,
+             linetype = "longdash",
+             size = 1,
+             color = "black") +
+  theme(axis.text.x = element_text(face = "plain", colour = "black", size = rel(1), vjust = 1.8),
+        axis.text.y = element_text(face = "plain", colour = "black", size = rel(1), hjust = 1, vjust = 1)) +
+  scale_x_continuous(name = "Total length (mm)", limits = c(100, 1100), breaks = seq(100, 1100, by = 50)) +
+  scale_y_continuous(name = "Number of individuals", limits = c(0, 16), breaks = seq(0, 16, 2)) +
+  theme(legend.position = "none", panel.border = element_rect(fill=NA),
+        axis.line = element_line(size = 1, colour = "black",linetype = "solid"),#define tama?o y color de los ejes
+        axis.text.x = element_text(size=17,colour = "black",vjust = -1),                   # tama?o y color del texto de los ejes
+        axis.text.y = element_text(size=17,colour = "black"),
+        axis.title.x =element_text(size=20,colour = "black", vjust = -1.5),       # tama?o y color del t?tulo de los ejes
+        axis.title.y =element_text(size=rel(1),colour= "black", vjust = 1.5),   #s?lo el eje y, definido en forma relativa al valor de "axis.title"
+        text = element_text(size=20),                                           # tama?o de partida de todos los textos
+        plot.background = element_rect(color="white", fill="white", size=1),    # color de borde y fondo de la figura
+        panel.background = element_rect(fill="white"),                          # color de fondo del panel
+        plot.margin = margin(t = 35,  # Top margin
+                             r = 45,  # Right margin
+                             b = 35,  # Bottom margin
+                             l = 35)) # Left margin
+
+raya
+
+
+

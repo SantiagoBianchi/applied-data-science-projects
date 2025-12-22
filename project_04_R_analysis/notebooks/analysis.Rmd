@@ -1,0 +1,45 @@
+---
+title: "Zearaja brevicaudata Analysis"
+author: "Santiago Bianchi"
+date: "`r Sys.Date()`"
+output: html_notebook
+---
+
+## 1. Package installation and loading
+
+```{r setup, message=FALSE, warning=FALSE}
+# Install packages (run only if not already installed)
+install.packages(c("rgdal", "sp", "mapdata", "maps", "ggplot2",
+                   "dplyr", "tidyr", "purrr", "FSA", "readxl",
+                   "plotrix", "bayesian", "tidyverse", "BayesGrowth",
+                   "AquaticLifeHistory", "tidybayes", "bayesplot",
+                   "rstan", "pander", "cowplot", "readr"), dependencies = TRUE)
+
+# Load packages
+library(rgdal)
+library(sp)
+library(mapdata)
+library(maps)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(FSA)
+library(readxl)
+library(plotrix)
+library(bayesian)
+library(tidyverse)
+library(BayesGrowth)
+library(AquaticLifeHistory)
+library(tidybayes)
+library(bayesplot)
+library(rstan)
+library(pander)
+library(cowplot)
+library(readr)
+
+
+#traer isobatas 50 y 200 m
+Iso50  <-  readOGR ("D:/Santiago/UNMdP/Doctorado en Cs. Biológicas/Datos rayas/Mapas R/50Linea.shp")
+
+Iso200  <-  readOGR ("D:/Santiago/UNMdP/Doctorado en Cs. Biológicas/Datos rayas/Mapas R/200Linea.shp")
