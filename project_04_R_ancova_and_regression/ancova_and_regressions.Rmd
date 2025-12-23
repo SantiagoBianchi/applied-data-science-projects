@@ -5,105 +5,83 @@ date: "`r Sys.Date()`"
 output:
   html_document:
     df_print: paged
-  html_notebook: default
-
 ---
 
-## Relationship between Vertebral radius and total length (Rv vs LT)
+## Relationship between Vertebral radius and total length 
 
-```{r setup, message=FALSE, warning=FALSE}
-
+```{r warning=FALSE}
+# Load libraries
 library(readxl)
 library(ggplot2)
 ```
 
-```{r setup, message=FALSE, warning=FALSE}
+```{r}
+# Load data
 Z_brevicaudata <- read_excel(
-"Z_brevicaudata.xlsx",
-sheet = "Z.brevicaudata"
+  "data/Z_brevicaudata.xlsx",
+  sheet = "Z.brevicaudata"
 )
+
+head(Z_brevicaudata)
 ```
 
-```{r setup, message=FALSE, warning=FALSE}
+```{r}
+# ANCOVA: test if vertebral radius differs by sex
 model <- aov(Rv_san ~ Sexo, data = Z_brevicaudata)
-summary(model) # So, should be for separate sexes
+summary(model) 
 ```
 
-```{r setup, message=FALSE, warning=FALSE}
-Males <- read_excel(
-"Z_brevicaudata.xlsx",
-sheet = "Machos"
-)
-```
+```{r message=FALSE, warning=FALSE}
+# Linear regressions by sex
+Males<- read_excel("data/Z_brevicaudata.xlsx",
+                    sheet= "Machos")
 
-```{r setup, message=FALSE, warning=FALSE}
-Reg_males <- lm(Lt ~ Rv_san, data = Males)
+Reg_males= lm(Lt~Rv_san, data= Males)
 summary(Reg_males)
 coef(Reg_males)
 ```
 
-```{r setup, message=FALSE, warning=FALSE}
-Females <- read_excel(
-"Z_brevicaudata.xlsx",
-sheet = "Hembras"
-)
-```
+```{r message=FALSE, warning=FALSE}
+Females<- read_excel("data/Z_brevicaudata.xlsx",
+                     sheet= "Hembras")
 
-```{r setup, message=FALSE, warning=FALSE}
-Reg_females <- lm(Lt ~ Rv_san, data = Females)
+Reg_females= lm(Lt~Rv_san, data= Females)
 summary(Reg_females)
 coef(Reg_females)
 ```
 
+```{r}
+# Plot: Vertebral radius vs total length
+rvlt<-ggplot(Z_brevicaudata, aes(x =Rv_san, y = Lt))+ 
+  geom_point(aes(shape=Sexo, color=Sexo), size=2) +
+  scale_shape_manual(labels=c("Females (n= 91)", "Males (n= 60)"), 
+                     values=c(1, 16),                         
+                     name="")+
+  scale_color_manual(labels=c("Females (n= 91)", "Males (n= 60)"),                
+                     values=c("black", "black"),                      #color
+                     name="")+                         
+  geom_abline(show.legend=NA, linewidth=1,aes(slope = 195.0742 , intercept =  100.0173, #Males
+                                         linetype="solid"))+
+  geom_abline(show.legend=NA, linewidth=1,aes(slope = 187.4284 , intercept =   134.9844, #Females
+                                         linetype="longdash"))+
+  scale_y_continuous(limits = c(300, 1100), breaks = seq(300, 1100, by = 100))+
+  scale_x_continuous(limits = c(1, 6.5), breaks = seq(1, 6.5, by = 1))+
+  theme(legend.position = "none", panel.border = element_rect(fill=NA),
+        axis.line = element_line(linewidth = 0.7, colour = "black"),                       #define tama?o y color de los ejes
+        axis.text.x = element_text(size=13, face= "plain", colour = "black", vjust = 0.4), # tama?o y color del texto de los ejes
+        axis.text.y = element_text(size=13, face= "plain", colour = "black", hjust=0.5, vjust = 0.4),
+        axis.title.x =element_text(size=15,colour = "black", vjust = -1),       # tama?o y color del t?tulo de los ejes
+        axis.title.y =element_text(size=rel(1),colour= "black", vjust = 1.5),   #s?lo el eje y, definido en forma relativa al valor de "axis.title"
+        text = element_text(size=15),                                               # tama?o de partida de todos los textos
+        plot.background = element_rect(color="white", fill="white", linewidth=3),        # color de borde y fondo de la figura
+        panel.background = element_rect(fill="white"),                              # color de fondo del panel
+        plot.margin = margin(t = 45,  # Top margin
+                             r = 55,  # Right margin
+                             b = 45,  # Bottom margin
+                             l = 45) # Left margin
+  )+
+  labs(x = "Vertebral radius (mm)",y = "Total length (mm)")
 
-```{r setup, message=FALSE, warning=FALSE}
-vrlt <- ggplot(Z_brevicaudata, aes(x = Rv_san, y = Lt)) +
-geom_point(aes(shape = Sexo, color = Sexo), size = 2) +
-scale_shape_manual(
-labels = c("Females (n = 91)", "Males (n = 60)"),
-values = c(1, 16),
-name = ""
-) +
-scale_color_manual(
-labels = c("Females (n = 91)", "Males (n = 60)"),
-values = c("black", "black"),
-name = ""
-) +
-geom_abline(
-slope = 195.0742,
-intercept = 100.0173,
-linewidth = 1
-) +
-geom_abline(
-slope = 187.4284,
-intercept = 134.9844,
-linewidth = 1,
-linetype = "longdash"
-) +
-scale_y_continuous(
-limits = c(300, 1100),
-breaks = seq(300, 1100, by = 100)
-) +
-scale_x_continuous(
-limits = c(1, 6.5),
-breaks = seq(1, 6.5, by = 1)
-) +
-theme(
-legend.position = "none",
-panel.border = element_rect(fill = NA),
-axis.line = element_line(linewidth = 0.7, colour = "black"),
-axis.text.x = element_text(size = 13, colour = "black", vjust = 0.4),
-axis.text.y = element_text(size = 13, colour = "black", vjust = 0.4),
-axis.title.x = element_text(size = 15, colour = "black", vjust = -1),
-axis.title.y = element_text(size = 15, colour = "black", vjust = 1.5),
-plot.background = element_rect(fill = "white"),
-panel.background = element_rect(fill = "white"),
-plot.margin = margin(45, 55, 45, 45)
-) +
-labs(
-x = "Vertebral radius (mm)",
-y = "Total length (mm)"
-)
-
-vrlt
+rvlt
 ```
+
