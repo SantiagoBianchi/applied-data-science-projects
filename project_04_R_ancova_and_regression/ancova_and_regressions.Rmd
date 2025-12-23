@@ -1,0 +1,109 @@
+---
+title: "Ancova and regression analysis"
+author: "Santiago Bianchi"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+
+---
+
+## Relationship between Vertebral radius and total length (Rv vs LT)
+
+```{r setup, message=FALSE, warning=FALSE}
+
+library(readxl)
+library(ggplot2)
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+Z_brevicaudata <- read_excel(
+"Z_brevicaudata.xlsx",
+sheet = "Z.brevicaudata"
+)
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+model <- aov(Rv_san ~ Sexo, data = Z_brevicaudata)
+summary(model) # So, should be for separate sexes
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+Males <- read_excel(
+"Z_brevicaudata.xlsx",
+sheet = "Machos"
+)
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+Reg_males <- lm(Lt ~ Rv_san, data = Males)
+summary(Reg_males)
+coef(Reg_males)
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+Females <- read_excel(
+"Z_brevicaudata.xlsx",
+sheet = "Hembras"
+)
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+Reg_females <- lm(Lt ~ Rv_san, data = Females)
+summary(Reg_females)
+coef(Reg_females)
+```
+
+
+```{r setup, message=FALSE, warning=FALSE}
+vrlt <- ggplot(Z_brevicaudata, aes(x = Rv_san, y = Lt)) +
+geom_point(aes(shape = Sexo, color = Sexo), size = 2) +
+scale_shape_manual(
+labels = c("Females (n = 91)", "Males (n = 60)"),
+values = c(1, 16),
+name = ""
+) +
+scale_color_manual(
+labels = c("Females (n = 91)", "Males (n = 60)"),
+values = c("black", "black"),
+name = ""
+) +
+geom_abline(
+slope = 195.0742,
+intercept = 100.0173,
+linewidth = 1
+) +
+geom_abline(
+slope = 187.4284,
+intercept = 134.9844,
+linewidth = 1,
+linetype = "longdash"
+) +
+scale_y_continuous(
+limits = c(300, 1100),
+breaks = seq(300, 1100, by = 100)
+) +
+scale_x_continuous(
+limits = c(1, 6.5),
+breaks = seq(1, 6.5, by = 1)
+) +
+theme(
+legend.position = "none",
+panel.border = element_rect(fill = NA),
+axis.line = element_line(linewidth = 0.7, colour = "black"),
+axis.text.x = element_text(size = 13, colour = "black", vjust = 0.4),
+axis.text.y = element_text(size = 13, colour = "black", vjust = 0.4),
+axis.title.x = element_text(size = 15, colour = "black", vjust = -1),
+axis.title.y = element_text(size = 15, colour = "black", vjust = 1.5),
+plot.background = element_rect(fill = "white"),
+panel.background = element_rect(fill = "white"),
+plot.margin = margin(45, 55, 45, 45)
+) +
+labs(
+x = "Vertebral radius (mm)",
+y = "Total length (mm)"
+)
+
+vrlt
+```
