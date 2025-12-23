@@ -11,7 +11,7 @@
 
 <meta name="author" content="Santiago Bianchi" />
 
-<meta name="date" content="2025-12-22" />
+<meta name="date" content="2025-12-23" />
 
 <title>Zearaja brevicaudata Analysis</title>
 
@@ -1750,69 +1750,68 @@ display: none;
 
 <h1 class="title toc-ignore">Zearaja brevicaudata Analysis</h1>
 <h4 class="author">Santiago Bianchi</h4>
-<h4 class="date">2025-12-22</h4>
+<h4 class="date">2025-12-23</h4>
 
 </div>
 
 
 <!-- rnb-text-begin -->
-<div id="package-installation-and-loading" class="section level1">
-<h1>1. Package installation and loading</h1>
+<div id="relationship-between-vertebral-radius-and-total-lengthrelacion-rv-vs-lt" class="section level6">
+<h6>Relationship between Vertebral radius and total lengthRelacion Rv vs
+LT</h6>
+<p>#Load the libraries library(readxl) library(ggplot2)</p>
+<p>##Data Z_brevicaudata &lt;- read_excel(“Z_brevicaudata.xlsx”, sheet =
+“Z.brevicaudata”)</p>
+<p>View(Z_brevicaudata)</p>
 </div>
-<div id="list-of-required-packages" class="section level1">
-<h1>List of required packages</h1>
-<p>packages &lt;- c(“sf”, “mapdata”, “maps”, “ggplot2”, “dplyr”,
-“tidyr”, “purrr”, “FSA”, “readxl”, “plotrix”, “bayesian”, “tidyverse”,
-“BayesGrowth”, “AquaticLifeHistory”, “tidybayes”, “bayesplot”, “rstan”,
-“pander”, “cowplot”, “readr”)</p>
+<div id="ancova" class="section level2">
+<h2>ANCOVA</h2>
+<p>#to test if vertebral radius differs by sex</p>
+<p>model &lt;- aov(Rv_san ~ Sexo, data = Z_brevicaudata) summary(model)
+#So, should be for separate sexes</p>
 </div>
-<div id="install-any-packages-that-are-not-yet-installed" class="section level1">
-<h1>Install any packages that are not yet installed</h1>
-<p>installed &lt;- packages %in% rownames(installed.packages())
-if(any(!installed)) install.packages(packages[!installed], dependencies
-= TRUE)</p>
-</div>
-<div id="load-all-packages" class="section level1">
-<h1>Load all packages</h1>
-<p>lapply(packages, library, character.only = TRUE)</p>
-</div>
-<div id="sample-distributions" class="section level1">
-<h1>Sample distributions</h1>
-<p>library(FSA) library(readxl) library(plotrix) library(ggplot2)</p>
-<p>Z_brevicaudata &lt;- read_excel(“data/Z_brevicaudata.xlsx”, sheet =
-“Z.brevicaudata”) View(Z_brevicaudata)</p>
-<p>windows() raya &lt;- ggplot(Z_brevicaudata, aes(x = Lt, fill = Sexo))
-+ geom_histogram(colour = “black”, binwidth = 0.10, lwd = 0.65, linetype
-= 1, position = “dodge”, breaks = seq(100, 1100, by = 50)) +
-scale_fill_manual(values = c(“black”, “white”)) + guides(fill =
-guide_legend(title = “Sexo”), colour = guide_legend(title = “Sexo”)) +
-geom_vline(xintercept = 162.5, linetype = “longdash”, size = 1, color =
-“black”) + theme(axis.text.x = element_text(face = “plain”, colour =
-“black”, size = rel(1), vjust = 1.8), axis.text.y = element_text(face =
-“plain”, colour = “black”, size = rel(1), hjust = 1, vjust = 1)) +
-scale_x_continuous(name = “Total length (mm)”, limits = c(100, 1100),
-breaks = seq(100, 1100, by = 50)) + scale_y_continuous(name = “Number of
-individuals”, limits = c(0, 16), breaks = seq(0, 16, 2)) +
-theme(legend.position = “none”, panel.border = element_rect(fill=NA),
-axis.line = element_line(size = 1, colour = “black”,linetype =
-“solid”),#define tama?o y color de los ejes axis.text.x =
-element_text(size=17,colour = “black”,vjust = -1), # tama?o y color del
-texto de los ejes axis.text.y = element_text(size=17,colour = “black”),
-axis.title.x =element_text(size=20,colour = “black”, vjust = -1.5), #
-tama?o y color del t?tulo de los ejes axis.title.y
-=element_text(size=rel(1),colour= “black”, vjust = 1.5), #s?lo el eje y,
-definido en forma relativa al valor de “axis.title” text =
-element_text(size=20), # tama?o de partida de todos los textos
-plot.background = element_rect(color=“white”, fill=“white”, size=1), #
-color de borde y fondo de la figura panel.background =
-element_rect(fill=“white”), # color de fondo del panel plot.margin =
-margin(t = 35, # Top margin r = 45, # Right margin b = 35, # Bottom
-margin l = 35)) # Left margin</p>
-<p>raya</p>
+<div id="regressions-by-sex" class="section level2">
+<h2>Regressions by sex</h2>
+<p>Males&lt;- read_excel(“Z_brevicaudata.xlsx”, sheet = “Machos”)</p>
+<p>Reg_males= lm(Lt~Rv_san, data= Males)</p>
+<p>summary(Reg_males) coef(Reg_males)</p>
+<p>Females&lt;- read_excel(“Z_brevicaudata.xlsx”, sheet = “Hembras”)</p>
+<p>Reg_females= lm(Lt~Rv_san, data= Females) summary(Reg_females)</p>
+<p>coef(Reg_females)</p>
+<p>#Plotting</p>
+<p>vrlt&lt;-ggplot(Z_brevicaudata, aes(x =Rv_san, y = Lt))+
+geom_point(aes(shape=Sexo, color=Sexo), size=2) +
+scale_shape_manual(labels=c(“Females (n= 91)”, “Males (n= 60)”),
+values=c(1, 16), # shapes name=““)+ scale_color_manual(labels=c(”Females
+(n= 91)“,”Males (n= 60)“), #names values=c(”black”, “black”), #color
+name=““)+<br />
+geom_abline(show.legend=NA, size=1,aes(slope = 195.0742 , intercept =
+100.0173, #Males linetype=”solid”))+ geom_abline(show.legend=NA,
+size=1,aes(slope = 187.4284 , intercept = 134.9844, #Females
+linetype=“longdash”))+ scale_fill_manual(values=c(“Red”, “Black”))+
+scale_y_continuous(limits = c(300, 1100), breaks = seq(300, 1100, by =
+100))+ scale_x_continuous(limits = c(1, 6.5), breaks = seq(1, 6.5, by =
+1))+ theme(legend.position = “none”, panel.border =
+element_rect(fill=NA), axis.line = element_line(linewidth = 0.7, colour
+= “black”), #size and color of the axis axis.text.x =
+element_text(size=13, face= “plain”, colour = “black”, vjust = 0.4), #
+size and color of the axis text axis.text.y = element_text(size=13,
+face= “plain”, colour = “black”, hjust=0.5, vjust = 0.4), axis.title.x
+=element_text(size=15,colour = “black”, vjust = -1), # size and color of
+the axis title axis.title.y =element_text(size=rel(1),colour= “black”,
+vjust = 1.5),<br />
+text = element_text(size=15),<br />
+plot.background = element_rect(color=“white”, fill=“white”,
+linewidth=3),<br />
+panel.background = element_rect(fill=“white”),<br />
+plot.margin = margin(t = 45, # Top margin r = 55, # Right margin b = 45,
+# Bottom margin l = 45) # Left margin )+ labs(x = “Vertebral radius
+(mm)”,y = “Total length (mm)”)</p>
+<p>vrlt</p>
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlplYXJhamEgYnJldmljYXVkYXRhIEFuYWx5c2lzIg0KYXV0aG9yOiAiU2FudGlhZ28gQmlhbmNoaSINCmRhdGU6ICJgciBTeXMuRGF0ZSgpYCINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNCiMgMS4gUGFja2FnZSBpbnN0YWxsYXRpb24gYW5kIGxvYWRpbmcNCg0KIyBMaXN0IG9mIHJlcXVpcmVkIHBhY2thZ2VzDQoNCnBhY2thZ2VzIDwtIGMoInNmIiwgIm1hcGRhdGEiLCAibWFwcyIsICJnZ3Bsb3QyIiwNCiJkcGx5ciIsICJ0aWR5ciIsICJwdXJyciIsICJGU0EiLCAicmVhZHhsIiwNCiJwbG90cml4IiwgImJheWVzaWFuIiwgInRpZHl2ZXJzZSIsICJCYXllc0dyb3d0aCIsDQoiQXF1YXRpY0xpZmVIaXN0b3J5IiwgInRpZHliYXllcyIsICJiYXllc3Bsb3QiLA0KInJzdGFuIiwgInBhbmRlciIsICJjb3dwbG90IiwgInJlYWRyIikNCg0KIyBJbnN0YWxsIGFueSBwYWNrYWdlcyB0aGF0IGFyZSBub3QgeWV0IGluc3RhbGxlZA0KDQppbnN0YWxsZWQgPC0gcGFja2FnZXMgJWluJSByb3duYW1lcyhpbnN0YWxsZWQucGFja2FnZXMoKSkNCmlmKGFueSghaW5zdGFsbGVkKSkgaW5zdGFsbC5wYWNrYWdlcyhwYWNrYWdlc1shaW5zdGFsbGVkXSwgZGVwZW5kZW5jaWVzID0gVFJVRSkNCg0KIyBMb2FkIGFsbCBwYWNrYWdlcw0KDQpsYXBwbHkocGFja2FnZXMsIGxpYnJhcnksIGNoYXJhY3Rlci5vbmx5ID0gVFJVRSkNCg0KDQojIFNhbXBsZSBkaXN0cmlidXRpb25zDQoNCmxpYnJhcnkoRlNBKQ0KbGlicmFyeShyZWFkeGwpDQpsaWJyYXJ5KHBsb3RyaXgpDQpsaWJyYXJ5KGdncGxvdDIpDQoNClpfYnJldmljYXVkYXRhIDwtIHJlYWRfZXhjZWwoImRhdGEvWl9icmV2aWNhdWRhdGEueGxzeCIsIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzaGVldCA9ICJaLmJyZXZpY2F1ZGF0YSIpDQpWaWV3KFpfYnJldmljYXVkYXRhKQ0KDQp3aW5kb3dzKCkNCnJheWEgPC0gZ2dwbG90KFpfYnJldmljYXVkYXRhLCBhZXMoeCA9IEx0LCBmaWxsID0gU2V4bykpICsgDQogIGdlb21faGlzdG9ncmFtKGNvbG91ciA9ICJibGFjayIsDQogICAgICAgICAgICAgICAgIGJpbndpZHRoID0gMC4xMCwNCiAgICAgICAgICAgICAgICAgbHdkID0gMC42NSwNCiAgICAgICAgICAgICAgICAgbGluZXR5cGUgPSAxLA0KICAgICAgICAgICAgICAgICBwb3NpdGlvbiA9ICJkb2RnZSIsDQogICAgICAgICAgICAgICAgIGJyZWFrcyA9IHNlcSgxMDAsIDExMDAsIGJ5ID0gNTApKSArDQogIHNjYWxlX2ZpbGxfbWFudWFsKHZhbHVlcyA9IGMoImJsYWNrIiwgIndoaXRlIikpICsNCiAgZ3VpZGVzKGZpbGwgPSBndWlkZV9sZWdlbmQodGl0bGUgPSAiU2V4byIpLA0KICAgICAgICAgY29sb3VyID0gZ3VpZGVfbGVnZW5kKHRpdGxlID0gIlNleG8iKSkgKw0KICBnZW9tX3ZsaW5lKHhpbnRlcmNlcHQgPSAxNjIuNSwNCiAgICAgICAgICAgICBsaW5ldHlwZSA9ICJsb25nZGFzaCIsDQogICAgICAgICAgICAgc2l6ZSA9IDEsDQogICAgICAgICAgICAgY29sb3IgPSAiYmxhY2siKSArDQogIHRoZW1lKGF4aXMudGV4dC54ID0gZWxlbWVudF90ZXh0KGZhY2UgPSAicGxhaW4iLCBjb2xvdXIgPSAiYmxhY2siLCBzaXplID0gcmVsKDEpLCB2anVzdCA9IDEuOCksDQogICAgICAgIGF4aXMudGV4dC55ID0gZWxlbWVudF90ZXh0KGZhY2UgPSAicGxhaW4iLCBjb2xvdXIgPSAiYmxhY2siLCBzaXplID0gcmVsKDEpLCBoanVzdCA9IDEsIHZqdXN0ID0gMSkpICsNCiAgc2NhbGVfeF9jb250aW51b3VzKG5hbWUgPSAiVG90YWwgbGVuZ3RoIChtbSkiLCBsaW1pdHMgPSBjKDEwMCwgMTEwMCksIGJyZWFrcyA9IHNlcSgxMDAsIDExMDAsIGJ5ID0gNTApKSArDQogIHNjYWxlX3lfY29udGludW91cyhuYW1lID0gIk51bWJlciBvZiBpbmRpdmlkdWFscyIsIGxpbWl0cyA9IGMoMCwgMTYpLCBicmVha3MgPSBzZXEoMCwgMTYsIDIpKSArDQogIHRoZW1lKGxlZ2VuZC5wb3NpdGlvbiA9ICJub25lIiwgcGFuZWwuYm9yZGVyID0gZWxlbWVudF9yZWN0KGZpbGw9TkEpLA0KICAgICAgICBheGlzLmxpbmUgPSBlbGVtZW50X2xpbmUoc2l6ZSA9IDEsIGNvbG91ciA9ICJibGFjayIsbGluZXR5cGUgPSAic29saWQiKSwjZGVmaW5lIHRhbWE/byB5IGNvbG9yIGRlIGxvcyBlamVzDQogICAgICAgIGF4aXMudGV4dC54ID0gZWxlbWVudF90ZXh0KHNpemU9MTcsY29sb3VyID0gImJsYWNrIix2anVzdCA9IC0xKSwgICAgICAgICAgICAgICAgICAgIyB0YW1hP28geSBjb2xvciBkZWwgdGV4dG8gZGUgbG9zIGVqZXMNCiAgICAgICAgYXhpcy50ZXh0LnkgPSBlbGVtZW50X3RleHQoc2l6ZT0xNyxjb2xvdXIgPSAiYmxhY2siKSwNCiAgICAgICAgYXhpcy50aXRsZS54ID1lbGVtZW50X3RleHQoc2l6ZT0yMCxjb2xvdXIgPSAiYmxhY2siLCB2anVzdCA9IC0xLjUpLCAgICAgICAjIHRhbWE/byB5IGNvbG9yIGRlbCB0P3R1bG8gZGUgbG9zIGVqZXMNCiAgICAgICAgYXhpcy50aXRsZS55ID1lbGVtZW50X3RleHQoc2l6ZT1yZWwoMSksY29sb3VyPSAiYmxhY2siLCB2anVzdCA9IDEuNSksICAgI3M/bG8gZWwgZWplIHksIGRlZmluaWRvIGVuIGZvcm1hIHJlbGF0aXZhIGFsIHZhbG9yIGRlICJheGlzLnRpdGxlIg0KICAgICAgICB0ZXh0ID0gZWxlbWVudF90ZXh0KHNpemU9MjApLCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAjIHRhbWE/byBkZSBwYXJ0aWRhIGRlIHRvZG9zIGxvcyB0ZXh0b3MNCiAgICAgICAgcGxvdC5iYWNrZ3JvdW5kID0gZWxlbWVudF9yZWN0KGNvbG9yPSJ3aGl0ZSIsIGZpbGw9IndoaXRlIiwgc2l6ZT0xKSwgICAgIyBjb2xvciBkZSBib3JkZSB5IGZvbmRvIGRlIGxhIGZpZ3VyYQ0KICAgICAgICBwYW5lbC5iYWNrZ3JvdW5kID0gZWxlbWVudF9yZWN0KGZpbGw9IndoaXRlIiksICAgICAgICAgICAgICAgICAgICAgICAgICAjIGNvbG9yIGRlIGZvbmRvIGRlbCBwYW5lbA0KICAgICAgICBwbG90Lm1hcmdpbiA9IG1hcmdpbih0ID0gMzUsICAjIFRvcCBtYXJnaW4NCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgciA9IDQ1LCAgIyBSaWdodCBtYXJnaW4NCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYiA9IDM1LCAgIyBCb3R0b20gbWFyZ2luDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgIGwgPSAzNSkpICMgTGVmdCBtYXJnaW4NCg0KcmF5YQ0KDQoNCg0K</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlplYXJhamEgYnJldmljYXVkYXRhIEFuYWx5c2lzIg0KYXV0aG9yOiAiU2FudGlhZ28gQmlhbmNoaSINCmRhdGU6ICJgciBTeXMuRGF0ZSgpYCINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNCg0KIyMjIyMjIFJlbGF0aW9uc2hpcCBiZXR3ZWVuIFZlcnRlYnJhbCByYWRpdXMgYW5kIHRvdGFsIGxlbmd0aFJlbGFjaW9uIFJ2IHZzIExUICMjIyMNCg0KI0xvYWQgdGhlIGxpYnJhcmllcyANCmxpYnJhcnkocmVhZHhsKQ0KbGlicmFyeShnZ3Bsb3QyKQ0KDQojI0RhdGENClpfYnJldmljYXVkYXRhIDwtIHJlYWRfZXhjZWwoIlpfYnJldmljYXVkYXRhLnhsc3giLCANCiAgICBzaGVldCA9ICJaLmJyZXZpY2F1ZGF0YSIpDQogICAgDQpWaWV3KFpfYnJldmljYXVkYXRhKQ0KDQoNCiMjIEFOQ09WQSANCg0KI3RvIHRlc3QgaWYgdmVydGVicmFsIHJhZGl1cyBkaWZmZXJzIGJ5IHNleA0KDQptb2RlbCA8LSBhb3YoUnZfc2FuIH4gU2V4bywgZGF0YSA9IFpfYnJldmljYXVkYXRhKQ0Kc3VtbWFyeShtb2RlbCkgI1NvLCBzaG91bGQgYmUgZm9yIHNlcGFyYXRlIHNleGVzIA0KDQojIyBSZWdyZXNzaW9ucyBieSBzZXgNCg0KTWFsZXM8LSByZWFkX2V4Y2VsKCJaX2JyZXZpY2F1ZGF0YS54bHN4IiwgDQogICAgc2hlZXQgPSAiTWFjaG9zIikNCiAgICANClJlZ19tYWxlcz0gbG0oTHR+UnZfc2FuLCBkYXRhPSBNYWxlcykNCg0Kc3VtbWFyeShSZWdfbWFsZXMpDQpjb2VmKFJlZ19tYWxlcykNCg0KRmVtYWxlczwtIHJlYWRfZXhjZWwoIlpfYnJldmljYXVkYXRhLnhsc3giLCANCiAgICBzaGVldCA9ICJIZW1icmFzIikNCiAgICANClJlZ19mZW1hbGVzPSBsbShMdH5Sdl9zYW4sIGRhdGE9IEZlbWFsZXMpDQpzdW1tYXJ5KFJlZ19mZW1hbGVzKQ0KDQpjb2VmKFJlZ19mZW1hbGVzKQ0KDQoNCiNQbG90dGluZw0KDQp2cmx0PC1nZ3Bsb3QoWl9icmV2aWNhdWRhdGEsIGFlcyh4ID1Sdl9zYW4sIHkgPSBMdCkpKyANCiAgZ2VvbV9wb2ludChhZXMoc2hhcGU9U2V4bywgY29sb3I9U2V4byksIHNpemU9MikgKw0KICBzY2FsZV9zaGFwZV9tYW51YWwobGFiZWxzPWMoIkZlbWFsZXMgKG49IDkxKSIsICJNYWxlcyAobj0gNjApIiksIA0KICAgICAgICAgICAgICAgICAgICAgdmFsdWVzPWMoMSwgMTYpLCAgICAgICAgICAgICAgICAgICAgICAgICAgIyBzaGFwZXMNCiAgICAgICAgICAgICAgICAgICAgIG5hbWU9IiIpKw0KICBzY2FsZV9jb2xvcl9tYW51YWwobGFiZWxzPWMoIkZlbWFsZXMgKG49IDkxKSIsICJNYWxlcyAobj0gNjApIiksICAgICAgICAgICAgICAgICNuYW1lcw0KICAgICAgICAgICAgICAgICAgICAgdmFsdWVzPWMoImJsYWNrIiwgImJsYWNrIiksICAgICAgICAgICAgICAgICAgICAgICNjb2xvcg0KICAgICAgICAgICAgICAgICAgICAgbmFtZT0iIikrICAgICAgICAgICAgICAgICAgICAgICAgIA0KICBnZW9tX2FibGluZShzaG93LmxlZ2VuZD1OQSwgc2l6ZT0xLGFlcyhzbG9wZSA9IDE5NS4wNzQyICwgaW50ZXJjZXB0ID0gIDEwMC4wMTczLCAjTWFsZXMNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbGluZXR5cGU9InNvbGlkIikpKw0KICBnZW9tX2FibGluZShzaG93LmxlZ2VuZD1OQSwgc2l6ZT0xLGFlcyhzbG9wZSA9IDE4Ny40Mjg0ICwgaW50ZXJjZXB0ID0gICAxMzQuOTg0NCwgI0ZlbWFsZXMNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbGluZXR5cGU9ImxvbmdkYXNoIikpKw0KICBzY2FsZV9maWxsX21hbnVhbCh2YWx1ZXM9YygiUmVkIiwgIkJsYWNrIikpKw0KICBzY2FsZV95X2NvbnRpbnVvdXMobGltaXRzID0gYygzMDAsIDExMDApLCBicmVha3MgPSBzZXEoMzAwLCAxMTAwLCBieSA9IDEwMCkpKw0KICBzY2FsZV94X2NvbnRpbnVvdXMobGltaXRzID0gYygxLCA2LjUpLCBicmVha3MgPSBzZXEoMSwgNi41LCBieSA9IDEpKSsNCiAgdGhlbWUobGVnZW5kLnBvc2l0aW9uID0gIm5vbmUiLCBwYW5lbC5ib3JkZXIgPSBlbGVtZW50X3JlY3QoZmlsbD1OQSksDQogICAgICAgIGF4aXMubGluZSA9IGVsZW1lbnRfbGluZShsaW5ld2lkdGggPSAwLjcsIGNvbG91ciA9ICJibGFjayIpLCAgICAgICAgICAgICAgICAgICAgICAgI3NpemUgYW5kIGNvbG9yIG9mIHRoZSBheGlzDQogICAgICAgIGF4aXMudGV4dC54ID0gZWxlbWVudF90ZXh0KHNpemU9MTMsIGZhY2U9ICJwbGFpbiIsIGNvbG91ciA9ICJibGFjayIsIHZqdXN0ID0gMC40KSwgIyBzaXplIGFuZCBjb2xvciBvZiB0aGUgYXhpcyB0ZXh0DQogICAgICAgIGF4aXMudGV4dC55ID0gZWxlbWVudF90ZXh0KHNpemU9MTMsIGZhY2U9ICJwbGFpbiIsIGNvbG91ciA9ICJibGFjayIsIGhqdXN0PTAuNSwgdmp1c3QgPSAwLjQpLA0KICAgICAgICBheGlzLnRpdGxlLnggPWVsZW1lbnRfdGV4dChzaXplPTE1LGNvbG91ciA9ICJibGFjayIsIHZqdXN0ID0gLTEpLCAgICAgICAjICBzaXplIGFuZCBjb2xvciBvZiB0aGUgYXhpcyB0aXRsZQ0KICAgICAgICBheGlzLnRpdGxlLnkgPWVsZW1lbnRfdGV4dChzaXplPXJlbCgxKSxjb2xvdXI9ICJibGFjayIsIHZqdXN0ID0gMS41KSwgICANCiAgICAgICAgdGV4dCA9IGVsZW1lbnRfdGV4dChzaXplPTE1KSwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA0KICAgICAgICBwbG90LmJhY2tncm91bmQgPSBlbGVtZW50X3JlY3QoY29sb3I9IndoaXRlIiwgZmlsbD0id2hpdGUiLCBsaW5ld2lkdGg9MyksICAgICAgIA0KICAgICAgICBwYW5lbC5iYWNrZ3JvdW5kID0gZWxlbWVudF9yZWN0KGZpbGw9IndoaXRlIiksICAgICAgICAgICAgICAgICAgICAgICAgICAgICANCiAgICAgICAgcGxvdC5tYXJnaW4gPSBtYXJnaW4odCA9IDQ1LCAgIyBUb3AgbWFyZ2luDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgIHIgPSA1NSwgICMgUmlnaHQgbWFyZ2luDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgIGIgPSA0NSwgICMgQm90dG9tIG1hcmdpbg0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICBsID0gNDUpICMgTGVmdCBtYXJnaW4NCiAgKSsNCiAgbGFicyh4ID0gIlZlcnRlYnJhbCByYWRpdXMgKG1tKSIseSA9ICJUb3RhbCBsZW5ndGggKG1tKSIpDQoNCnZybHQNCg0KDQo=</div>
 
 
 

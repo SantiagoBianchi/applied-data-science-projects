@@ -1,0 +1,83 @@
+---
+title: "Zearaja brevicaudata Analysis"
+author: "Santiago Bianchi"
+date: "`r Sys.Date()`"
+output: html_notebook
+---
+
+
+###### Relationship between Vertebral radius and total lengthRelacion Rv vs LT ####
+
+#Load the libraries 
+library(readxl)
+library(ggplot2)
+
+##Data
+Z_brevicaudata <- read_excel("Z_brevicaudata.xlsx", 
+    sheet = "Z.brevicaudata")
+    
+View(Z_brevicaudata)
+
+
+## ANCOVA 
+
+#to test if vertebral radius differs by sex
+
+model <- aov(Rv_san ~ Sexo, data = Z_brevicaudata)
+summary(model) #So, should be for separate sexes 
+
+## Regressions by sex
+
+Males<- read_excel("Z_brevicaudata.xlsx", 
+    sheet = "Machos")
+    
+Reg_males= lm(Lt~Rv_san, data= Males)
+
+summary(Reg_males)
+coef(Reg_males)
+
+Females<- read_excel("Z_brevicaudata.xlsx", 
+    sheet = "Hembras")
+    
+Reg_females= lm(Lt~Rv_san, data= Females)
+summary(Reg_females)
+
+coef(Reg_females)
+
+
+#Plotting
+
+vrlt<-ggplot(Z_brevicaudata, aes(x =Rv_san, y = Lt))+ 
+  geom_point(aes(shape=Sexo, color=Sexo), size=2) +
+  scale_shape_manual(labels=c("Females (n= 91)", "Males (n= 60)"), 
+                     values=c(1, 16),                          # shapes
+                     name="")+
+  scale_color_manual(labels=c("Females (n= 91)", "Males (n= 60)"),                #names
+                     values=c("black", "black"),                      #color
+                     name="")+                         
+  geom_abline(show.legend=NA, size=1,aes(slope = 195.0742 , intercept =  100.0173, #Males
+                                         linetype="solid"))+
+  geom_abline(show.legend=NA, size=1,aes(slope = 187.4284 , intercept =   134.9844, #Females
+                                         linetype="longdash"))+
+  scale_fill_manual(values=c("Red", "Black"))+
+  scale_y_continuous(limits = c(300, 1100), breaks = seq(300, 1100, by = 100))+
+  scale_x_continuous(limits = c(1, 6.5), breaks = seq(1, 6.5, by = 1))+
+  theme(legend.position = "none", panel.border = element_rect(fill=NA),
+        axis.line = element_line(linewidth = 0.7, colour = "black"),                       #size and color of the axis
+        axis.text.x = element_text(size=13, face= "plain", colour = "black", vjust = 0.4), # size and color of the axis text
+        axis.text.y = element_text(size=13, face= "plain", colour = "black", hjust=0.5, vjust = 0.4),
+        axis.title.x =element_text(size=15,colour = "black", vjust = -1),       #  size and color of the axis title
+        axis.title.y =element_text(size=rel(1),colour= "black", vjust = 1.5),   
+        text = element_text(size=15),                                               
+        plot.background = element_rect(color="white", fill="white", linewidth=3),       
+        panel.background = element_rect(fill="white"),                             
+        plot.margin = margin(t = 45,  # Top margin
+                             r = 55,  # Right margin
+                             b = 45,  # Bottom margin
+                             l = 45) # Left margin
+  )+
+  labs(x = "Vertebral radius (mm)",y = "Total length (mm)")
+
+vrlt
+
+
