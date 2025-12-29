@@ -14,6 +14,10 @@ The projects emphasize end-to-end workflows, including data cleaning, explorator
   Statistical comparison of goal distributions in men's and women's World Cup matches using non-parametric tests.
 * \#4 **Ancova and regressions analysis**  
   This project explores the relationship between vertebral radius and total length
+* \#5 **Bayesian growth models**
+  This project describe and compare growth patterns in Zearaja brevicaudata using a Bayesian approach.
+* \#6 **GLMs**
+  This project describe effect of depth (profundidad) between Linf parameter in four species using several GLMs.
 
 
 
@@ -21,9 +25,12 @@ The projects emphasize end-to-end workflows, including data cleaning, explorator
 
 * Python
 * R
+* Git \& GitHub
 * pandas
-* scikit-learn
 * matplotlib
 * seaborn
 * Statistical modeling
-* Git \& GitHub
+* ggplot2
+* MuMIn
+* dyplyr
+* tidyr
