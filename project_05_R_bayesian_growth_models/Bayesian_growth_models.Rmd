@@ -1,0 +1,355 @@
+---
+title: "Bayesian growth models"
+author: "Santiago Bianchi"
+output: github_document
+---
+
+
+#### PACKAGES ####
+
+```{r message=FALSE, warning=FALSE}
+library(bayesian)
+library(tidyverse)
+library(BayesGrowth)
+library(AquaticLifeHistory)
+library(tidybayes)
+library(bayesplot)
+library(rstan)
+library(pander)
+library(cowplot)
+library(readxl)
+library(plotrix)
+library(readr)
+```
+
+#### DATA ####
+
+```{r message=FALSE, warning=FALSE}
+## MALES ##
+
+mac <- read.table("data/machos.txt", header = T)
+View(mac)
+
+summary(mac)
+
+```
+## MALE´S PRIORS ##
+
+```{r message=FALSE, warning=FALSE}
+
+#prior L0
+mean(c(190,180,228)) #199.33
+
+seL0<-sd(c(190,180,228))/sqrt(length(c(190,180,228))) #14.62
+seL0
+
+#prior Linf
+mean(c(1340,1190,1150)) #1227
+seLinf<-sd(c(1340,1190,1150))/sqrt(length(c(1340,1190,1150))) #57.83
+seLinf
+
+```
+
+## MALE´S GROWTH MODELS ##
+
+```{r message=FALSE, warning=FALSE}
+#von Bertalanffy
+modelo_macVB<- Estimate_MCMC_Growth(mac,Model = "VB" ,iter = 10000,n.chains = 4,BurnIn = 5000,thin = 1,Linf = 1227,Linf.se = 57.83,
+                                    L0 = 199.33,L0.se = 14.62,sigma.max = 300,verbose = T,n_cores = 3,k.max = 0.7)
+
+
+pander(Get_MCMC_parameters(modelo_macVB))
+
+
+mcmc_combo(modelo_macVB,pars = c("Linf", "k", "L0", "sigma")) #diagnostics
+
+mcmc_acf(modelo_macVB,pars = c("Linf", "k", "L0", "sigma"))
+```
+
+```{r message=FALSE, warning=FALSE}
+#Gompertz
+modelo_macGom<- Estimate_MCMC_Growth(mac,Model = "Gom" ,iter = 10000,n.chains = 4,BurnIn = 5000,thin = 1,Linf = 1227,Linf.se = 57.83,
+                                     L0 = 199.33,L0.se = 14.62,sigma.max = 300,verbose = T,n_cores = 3,k.max = 0.7)
+
+pander(Get_MCMC_parameters(modelo_macGom))
+
+
+mcmc_combo(modelo_macGom,pars = c("Linf", "k", "L0", "sigma")) #diagnostics
+
+mcmc_acf(modelo_macGom,pars = c("Linf", "k", "L0", "sigma"))
+```
+
+```{r message=FALSE, warning=FALSE}
+#Logistic
+modelo_macLog<- Estimate_MCMC_Growth(mac,Model = "Log" ,iter = 10000,n.chains = 4,BurnIn = 5000,thin = 1,Linf = 1227,Linf.se = 57.83,
+                                     L0 = 199.33,L0.se = 14.62,sigma.max = 300,verbose = T,n_cores = 3,k.max = 0.7)
+
+pander(Get_MCMC_parameters(modelo_macLog))
+
+
+mcmc_combo(modelo_macLog,pars = c("Linf", "k", "L0", "sigma")) #diagnostics
+
+mcmc_acf(modelo_macLog,pars = c("Linf", "k", "L0", "sigma"))
+```
+
+```{r message=FALSE, warning=FALSE}
+#Comparative
+mac_LooIC <- Compare_Growth_Models(mac,iter = 10000,n.chains = 4,BurnIn = 5000,thin = 1,Linf = 1227,Linf.se = 57.83,
+                                     L0 = 199.33,L0.se = 14.62,sigma.max = 300,verbose = T,n_cores = 3,k.max = 0.7)
+
+pander(mac_LooIC) #VB as the best model
+
+```
+
+## MALE´S PLOTTING ##
+
+```{r message=FALSE, warning=FALSE}
+VBmac<- Calculate_MCMC_growth_curve(modelo_macVB,Model = "VB", max.age = 29, probs = 0.95)
+GOMmac<- Calculate_MCMC_growth_curve(modelo_macGom,Model = "Gom", max.age = 29, probs = 0.95)
+LOGmac<- Calculate_MCMC_growth_curve(modelo_macLog,Model = "Log", max.age = 29, probs = 0.95)
+
+Modelos_mac <- ggplot() +
+  ggtitle("")+
+  geom_point( data = mac, aes(x = Age, y = Lenght), shape=1, colour= "black", size= 1,alpha =1 )+
+  labs(y = "", x = "")+
+  geom_line(data = VBmac, aes(x = Age, y = LAA, linetype= "dotted",color = "Base SE of VB" ),size = 0.8)+
+  geom_line(data = GOMmac, aes(x = Age, y = LAA,linetype= "longdashed",color = "Base SE of Gom"),size = 0.8)+
+  geom_line(data = LOGmac, aes(x = Age, y = LAA,linetype= "solid",color = "Base SE of Log"),size = 0.8)+
+  expand_limits(y = 1230)+
+  scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, by = 5))+
+  scale_y_continuous(limits = c(0, 1200), breaks = seq(0, 1200, by = 200))+
+  scale_colour_manual(values = c("Black", "Black", "Black"))+
+  theme_classic()
+
+Mac_final<-Modelos_mac +  theme(legend.position = "none", panel.border = element_rect(fill=NA))
+
+Mac_final
+```
+
+
+
+#### FEMALES ####
+
+## DATA ##
+
+```{r message=FALSE, warning=FALSE}
+hem <- read.table("data/hembras.txt", header = T)
+View(hem)
+
+summary(hem)
+```
+```{r message=FALSE, warning=FALSE}
+## PRIORS ##
+
+#prior L0
+mean(c(190,180,228)) #199.33
+
+seL0<-sd(c(190,180,228))/sqrt(length(c(190,180,228))) #14.62
+seL0
+
+#prior Linf
+mean(c(1340,1190,1150)) #1227
+seLinf<-sd(c(1340,1190,1150))/sqrt(length(c(1340,1190,1150))) #57.83
+seLinf
+
+```
+
+```{r message=FALSE, warning=FALSE}
+#von Bertalanffy
+
+modelo_hemVB<- Estimate_MCMC_Growth(hem,Model = "VB" ,iter = 10000,n.chains = 4,BurnIn = 5000,thin = 1,Linf = 1227,Linf.se = 57.83,
+                                    L0 = 199.33,L0.se = 14.62,sigma.max = 300,verbose = T,n_cores = 3,k.max = 0.7)
+
+
+pander(Get_MCMC_parameters(modelo_hemVB))
+
+
+
+mcmc_combo(modelo_hemVB,pars = c("Linf", "k", "L0", "sigma")) #diagnostics
+
+mcmc_acf(modelo_hemVB,pars = c("Linf", "k", "L0", "sigma"))
+```
+
+```{r message=FALSE, warning=FALSE}
+#Gompertz
+modelo_hemGom<- Estimate_MCMC_Growth(hem,Model = "Gom" ,iter = 10000,n.chains = 4,BurnIn = 5000,thin = 1,Linf = 1227,Linf.se = 57.83,
+                                    L0 = 199.33,L0.se = 14.62,sigma.max = 300,verbose = T,n_cores = 3,k.max = 0.7)
+
+
+pander(Get_MCMC_parameters(modelo_hemGom))
+
+
+mcmc_combo(modelo_hemGom,pars = c("Linf", "k", "L0", "sigma")) #diagnostics
+
+mcmc_acf(modelo_hemGom,pars = c("Linf", "k", "L0", "sigma"))
+```
+
+```{r message=FALSE, warning=FALSE}
+#Logistic
+modelo_hemLog<- Estimate_MCMC_Growth(hem,Model = "Log" ,iter = 10000,n.chains = 4,BurnIn = 5000,thin = 1,Linf = 1227,Linf.se = 57.83,
+                                    L0 = 199.33,L0.se = 14.62,sigma.max = 300,verbose = T,n_cores = 3,k.max = 0.7)
+
+pander(Get_MCMC_parameters(modelo_hemLog))
+
+
+mcmc_combo(modelo_hemLog,pars = c("Linf", "k", "L0", "sigma")) #diagnostics
+
+mcmc_acf(modelo_hemLog,pars = c("Linf", "k", "L0", "sigma"))
+```
+
+```{r message=FALSE, warning=FALSE}
+#Comparative
+hem_LooIC <- Compare_Growth_Models(hem,iter = 10000,n.chains = 4,BurnIn = 5000,thin = 1,Linf = 1227,Linf.se = 57.83,
+                                    L0 = 199.33,L0.se = 14.62,sigma.max = 300,verbose = T,n_cores = 3,k.max = 0.7)
+
+pander(hem_LooIC) #VB as the best model for females
+```
+
+## FEMALE´S PLOTTING ##
+
+```{r message=FALSE, warning=FALSE}
+VBhem<- Calculate_MCMC_growth_curve(modelo_hemVB,Model = "VB", max.age = 29, probs = 0.95)
+GOMhem<- Calculate_MCMC_growth_curve(modelo_hemGom,Model = "Gom", max.age = 29, probs = 0.95)
+LOGhem<- Calculate_MCMC_growth_curve(modelo_hemLog,Model = "Log", max.age = 29, probs = 0.95)
+
+Modelos_hem <- ggplot() +
+  ggtitle("")+
+  geom_point( data = hem, aes(x = Age, y = Lenght), shape=1, colour= "black", size= 1,alpha =1)+
+  labs(y = "Total length (mm)", x = "")+
+  geom_line(data = VBhem, aes(x = Age, y = LAA, linetype= "dotted",color = "Base SE of VB" ),size = 0.8)+
+  geom_line(data = GOMhem, aes(x = Age, y = LAA,linetype= "longdashed",color = "Base SE of Gom"),size = 0.8)+
+  geom_line(data = LOGhem, aes(x = Age, y = LAA,linetype= "solid",color = "Base SE of Log"),size = 0.8)+
+  expand_limits(y = 1300)+
+  scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, by = 5))+
+  scale_y_continuous(limits = c(0, 1200), breaks = seq(0, 1200, by = 200))+
+  theme_classic()
+
+Hem_final<-Modelos_hem +  scale_colour_manual(values = c("Black", "Black", "Black"))+  
+          scale_fill_manual(values = c("White", "White", "White")) + 
+         theme(legend.position = "none", panel.border = element_rect(fill=NA))
+
+Hem_final
+```
+
+
+#### COMBINED SEXES ####
+
+## DATA ##
+
+```{r message=FALSE, warning=FALSE}
+comb <- read.table("data/comb.txt", header = T)
+
+summary(comb)
+```
+## PRIORS ##
+
+```{r message=FALSE, warning=FALSE}
+#prior L0
+mean(c(190,180,228)) #199.33
+
+seL0<-sd(c(190,180,228))/sqrt(length(c(190,180,228))) #14.62
+seL0
+
+#prior Linf
+mean(c(1340,1190,1150)) #1227
+seLinf<-sd(c(1340,1190,1150))/sqrt(length(c(1340,1190,1150))) #57.83
+seLinf
+```
+
+## COMBINED SEXES ##
+```{r message=FALSE, warning=FALSE}
+#von Bertalanffy
+modelo_combVB<- Estimate_MCMC_Growth(comb,Model = "VB" ,iter = 10000,n.chains = 4,BurnIn = 5000,thin = 1,Linf = 1227,Linf.se = 57.83,
+                                    L0 = 199.33,L0.se = 14.62,sigma.max = 300,verbose = T,n_cores = 3,k.max = 0.7)
+
+
+pander(Get_MCMC_parameters(modelo_combVB))
+
+
+mcmc_combo(modelo_combVB,pars = c("Linf", "k", "L0", "sigma")) #diagnostics
+
+mcmc_acf(modelo_combVB,pars = c("Linf", "k", "L0", "sigma"))
+
+VBcomb<- Calculate_MCMC_growth_curve(modelo_combVB,Model = "VB", max.age = 29, probs = 0.95)
+```
+```{r message=FALSE, warning=FALSE}
+#Gompertz
+modelo_combGom<- Estimate_MCMC_Growth(comb,Model = "Gom" ,iter = 10000,n.chains = 4,BurnIn = 5000,thin = 1,Linf = 1227,Linf.se = 57.83,
+                                    L0 = 199.33,L0.se = 14.62,sigma.max = 300,verbose = T,n_cores = 3,k.max = 0.7)
+
+pander(Get_MCMC_parameters(modelo_combGom))
+
+
+mcmc_combo(modelo_combGom,pars = c("Linf", "k", "L0", "sigma")) #diagnostics
+
+mcmc_acf(modelo_combGom,pars = c("Linf", "k", "L0", "sigma"))
+```
+
+```{r message=FALSE, warning=FALSE}
+#Logistic
+modelo_combLog<- Estimate_MCMC_Growth(comb,Model = "Log" ,iter = 10000,n.chains = 4,BurnIn = 5000,thin = 1,Linf = 1227,Linf.se = 57.83,
+                                    L0 = 199.33,L0.se = 14.62,sigma.max = 300,verbose = T,n_cores = 3,k.max = 0.7)
+
+pander(Get_MCMC_parameters(modelo_combLog))
+
+
+mcmc_combo(modelo_combLog,pars = c("Linf", "k", "L0", "sigma")) #diagnostics
+
+mcmc_acf(modelo_combLog,pars = c("Linf", "k", "L0", "sigma"))
+```
+
+```{r message=FALSE, warning=FALSE}
+#Comparative
+comb_LooIC <- Compare_Growth_Models(comb,iter = 10000,n.chains = 4,BurnIn = 5000,thin = 1,Linf = 1227,Linf.se = 57.83,
+                                    L0 = 199.33,L0.se = 14.62,sigma.max = 300,verbose = T,n_cores = 3,k.max = 0.7)
+pander(comb_LooIC) #Vb as the best model
+```
+
+
+##PLOTTING COMBINED SEXES ##
+
+```{r message=FALSE, warning=FALSE}
+VBcomb<- Calculate_MCMC_growth_curve(modelo_combVB,Model = "VB", max.age = 29, probs = 0.95)
+GOMcomb<- Calculate_MCMC_growth_curve(modelo_combGom,Model = "Gom", max.age = 29, probs = 0.95)
+LOGcomb<- Calculate_MCMC_growth_curve(modelo_combLog,Model = "Log", max.age = 29, probs = 0.95)
+
+Modelos_comb <- ggplot() +
+  ggtitle("")+
+  geom_point( data = comb, aes(x = Age, y = Length), shape=1, colour= "black", size= 1,alpha =1)+
+  labs(y = "", x = "Age (years)")+
+  geom_line(data = VBcomb, aes(x = Age, y = LAA, linetype= "dotted",color = "Base SE of VB" ),size = 0.8)+
+  geom_line(data = GOMcomb, aes(x = Age, y = LAA,linetype= "longdashed",color = "Base SE of Gom"),size = 0.8)+
+  geom_line(data = LOGcomb, aes(x = Age, y = LAA,linetype= "solid",color = "Base SE of Log"),size = 0.8)+
+  expand_limits(y = 1300)+
+  scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, by = 5))+
+  scale_y_continuous(limits = c(0, 1200), breaks = seq(0, 1200, by = 200))+
+  theme_classic()
+
+Comb_final<-Modelos_comb +  scale_colour_manual(values = c("Black", "Black", "Black"))+  
+  scale_fill_manual(values = c("White", "White", "White"))+ 
+  theme(legend.position = "none", panel.border = element_rect(fill=NA))
+
+Comb_final
+```
+
+```{r message=FALSE, warning=FALSE}
+#Arrange the final position of the plots
+library(grid)
+library(gridExtra)
+library(ggplot2)
+library(cowplot)
+library(plotrix)
+
+grid.arrange(Mac_final, Hem_final,Comb_final, 
+             ncol = 1, nrow = 3)+
+  
+  theme_set(theme_classic())
+ggdraw() +
+  draw_plot(Mac_final, x = 0.25, y = .666, width = .5, height = .373) +
+  draw_plot(Hem_final, x = 0.25, y = .333, width = .5, height = .373) +
+  draw_plot(Comb_final, x = 0.25, y = 0, width = .5, height = .373)+
+  draw_plot_label(label = c("Males", "Females", "Combined sexes"), size = 8, fontface = "italic",
+                  x = c(0.325, 0.315, 0.285), y = c(0.97, 0.63, 0.3))
+```
+
+
